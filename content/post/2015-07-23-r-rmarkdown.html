@@ -1,0 +1,122 @@
+---
+title: "Toronto's Crime Rate by Neighbourhood"
+author: "Cecily Liu"
+date: 2020-09-25T21:13:14-05:00
+bibliography: "reference.bib"
+categories: ["R"]
+tags: ["R Markdown", "plot", "regression"]
+
+---
+
+
+
+<div id="abstract" class="section level1">
+<h1>Abstract</h1>
+<p>Crime rate is an important measure when determining public polices about safety, or deciding between neighbourhoods you would want to raise your children. In this blogpost, we look at the “Neighbourhood Crime Rate” taken from Open Data Toronto, which shows the various crime counts of neighbourhoods in Toronto from 2014-2019. We can see that despite the smaller population, Agincourt South-Malvert West has a higher crime count in almost all types of crime measured compared to the neighbouring Agincourt North. This may give insight on further research on factors that may cause crime.</p>
+</div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>This dataset “Neighbourhood Crime Rate” taken from Open Data Toronto, depicts the crime count and population of the 140 neighbourhoods that make up Toronto. The crimes include assault, auto theft, break and enter, robbery, theft, and homicide that has happened in 2014-2019 for each neighbourhood. As well, it shows the averages for each crime count over the last 5 years, the percentage change of each crime, and the rate of each crime for 2019 per 100,000 people. The population included is taken from the 2016 Census and there are no missing data or n/a for any of the categories.</p>
+<p>We use <span class="citation">Wickham et al. (2019)</span>, <span class="citation">Gelfand (2020)</span>, <span class="citation">Wickham et al. (2020)</span>, in the following blogpost.</p>
+<pre class="r"><code>crime_rate_data &lt;- list_package_resources(&quot;https://open.toronto.ca/dataset/neighbourhood-crime-rates/&quot;) %&gt;%
+  get_resource()
+
+head(crime_rate_data)
+## Simple feature collection with 6 features and 61 fields
+## geometry type:  POLYGON
+## dimension:      XY
+## bbox:           xmin: -79.58517 ymin: 43.61273 xmax: -79.28772 ymax: 43.77269
+## geographic CRS: WGS 84
+## # A tibble: 6 x 62
+##   `_id` OBJECTID Neighbourhood Hood_ID Population Assault_2014 Assault_2015
+##   &lt;int&gt;    &lt;int&gt; &lt;chr&gt;         &lt;chr&gt;        &lt;int&gt;        &lt;int&gt;        &lt;int&gt;
+## 1     1       16 South Parkda~ 085          21849          202          226
+## 2     2       17 South Riverd~ 070          27876          215          207
+## 3     3       18 St.Andrew-Wi~ 040          17812           53           41
+## 4     4       19 Taylor-Massey 061          15683          127           92
+## 5     5       20 Humber Summit 021          12416           76           89
+## 6     6       21 Humbermede    022          15545          117          132
+## # ... with 55 more variables: Assault_2016 &lt;int&gt;, Assault_2017 &lt;int&gt;,
+## #   Assault_2018 &lt;int&gt;, Assault_2019 &lt;int&gt;, Assault_AVG &lt;dbl&gt;,
+## #   Assault_CHG &lt;dbl&gt;, Assault_Rate_2019 &lt;dbl&gt;, AutoTheft_2014 &lt;int&gt;,
+## #   AutoTheft_2015 &lt;int&gt;, AutoTheft_2016 &lt;int&gt;, AutoTheft_2017 &lt;int&gt;,
+## #   AutoTheft_2018 &lt;int&gt;, AutoTheft_2019 &lt;int&gt;, AutoTheft_AVG &lt;dbl&gt;,
+## #   AutoTheft_CHG &lt;dbl&gt;, AutoTheft_Rate_2019 &lt;dbl&gt;, BreakandEnter_2014 &lt;int&gt;,
+## #   BreakandEnter_2015 &lt;int&gt;, BreakandEnter_2016 &lt;int&gt;,
+## #   BreakandEnter_2017 &lt;int&gt;, BreakandEnter_2018 &lt;int&gt;,
+## #   BreakandEnter_2019 &lt;int&gt;, BreakandEnter_AVG &lt;dbl&gt;, BreakandEnter_CHG &lt;dbl&gt;,
+## #   BreakandEnter_Rate_2019 &lt;dbl&gt;, Homicide_2014 &lt;int&gt;, Homicide_2015 &lt;int&gt;,
+## #   Homicide_2016 &lt;int&gt;, Homicide_2017 &lt;int&gt;, Homicide_2018 &lt;int&gt;,
+## #   Homicide_2019 &lt;int&gt;, Homicide_AVG &lt;dbl&gt;, Homicide_CHG &lt;dbl&gt;,
+## #   Homicide_Rate_2019 &lt;dbl&gt;, Robbery_2014 &lt;int&gt;, Robbery_2015 &lt;int&gt;,
+## #   Robbery_2016 &lt;int&gt;, Robbery_2017 &lt;int&gt;, Robbery_2018 &lt;int&gt;,
+## #   Robbery_2019 &lt;int&gt;, Robbery_AVG &lt;dbl&gt;, Robbery_CHG &lt;dbl&gt;,
+## #   Robbery_Rate_2019 &lt;dbl&gt;, TheftOver_2014 &lt;int&gt;, TheftOver_2015 &lt;int&gt;,
+## #   TheftOver_2016 &lt;int&gt;, TheftOver_2017 &lt;int&gt;, TheftOver_2018 &lt;int&gt;,
+## #   TheftOver_2019 &lt;int&gt;, TheftOver_AVG &lt;dbl&gt;, TheftOver_CHG &lt;dbl&gt;,
+## #   TheftOver_Rate_2019 &lt;dbl&gt;, Shape__Area &lt;dbl&gt;, Shape__Length &lt;dbl&gt;,
+## #   geometry &lt;POLYGON [°]&gt;</code></pre>
+</div>
+<div id="graph" class="section level1">
+<h1>Graph</h1>
+<pre class="r"><code>compare_crime &lt;- crime_rate_data %&gt;%
+  filter(Neighbourhood %in% c(&quot;Agincourt North&quot;, &quot;Agincourt South-Malvern West&quot;)) 
+
+#all observations for two chosen neighbourhoods
+compare_crime 
+## Simple feature collection with 2 features and 61 fields
+## geometry type:  POLYGON
+## dimension:      XY
+## bbox:           xmin: -79.29167 ymin: 43.77501 xmax: -79.23525 ymax: 43.81901
+## geographic CRS: WGS 84
+## # A tibble: 2 x 62
+##   `_id` OBJECTID Neighbourhood Hood_ID Population Assault_2014 Assault_2015
+## * &lt;int&gt;    &lt;int&gt; &lt;chr&gt;         &lt;chr&gt;        &lt;int&gt;        &lt;int&gt;        &lt;int&gt;
+## 1    65       80 Agincourt No~ 129          29113           67           76
+## 2    66       81 Agincourt So~ 128          23757          107          112
+## # ... with 55 more variables: Assault_2016 &lt;int&gt;, Assault_2017 &lt;int&gt;,
+## #   Assault_2018 &lt;int&gt;, Assault_2019 &lt;int&gt;, Assault_AVG &lt;dbl&gt;,
+## #   Assault_CHG &lt;dbl&gt;, Assault_Rate_2019 &lt;dbl&gt;, AutoTheft_2014 &lt;int&gt;,
+## #   AutoTheft_2015 &lt;int&gt;, AutoTheft_2016 &lt;int&gt;, AutoTheft_2017 &lt;int&gt;,
+## #   AutoTheft_2018 &lt;int&gt;, AutoTheft_2019 &lt;int&gt;, AutoTheft_AVG &lt;dbl&gt;,
+## #   AutoTheft_CHG &lt;dbl&gt;, AutoTheft_Rate_2019 &lt;dbl&gt;, BreakandEnter_2014 &lt;int&gt;,
+## #   BreakandEnter_2015 &lt;int&gt;, BreakandEnter_2016 &lt;int&gt;,
+## #   BreakandEnter_2017 &lt;int&gt;, BreakandEnter_2018 &lt;int&gt;,
+## #   BreakandEnter_2019 &lt;int&gt;, BreakandEnter_AVG &lt;dbl&gt;, BreakandEnter_CHG &lt;dbl&gt;,
+## #   BreakandEnter_Rate_2019 &lt;dbl&gt;, Homicide_2014 &lt;int&gt;, Homicide_2015 &lt;int&gt;,
+## #   Homicide_2016 &lt;int&gt;, Homicide_2017 &lt;int&gt;, Homicide_2018 &lt;int&gt;,
+## #   Homicide_2019 &lt;int&gt;, Homicide_AVG &lt;dbl&gt;, Homicide_CHG &lt;dbl&gt;,
+## #   Homicide_Rate_2019 &lt;dbl&gt;, Robbery_2014 &lt;int&gt;, Robbery_2015 &lt;int&gt;,
+## #   Robbery_2016 &lt;int&gt;, Robbery_2017 &lt;int&gt;, Robbery_2018 &lt;int&gt;,
+## #   Robbery_2019 &lt;int&gt;, Robbery_AVG &lt;dbl&gt;, Robbery_CHG &lt;dbl&gt;,
+## #   Robbery_Rate_2019 &lt;dbl&gt;, TheftOver_2014 &lt;int&gt;, TheftOver_2015 &lt;int&gt;,
+## #   TheftOver_2016 &lt;int&gt;, TheftOver_2017 &lt;int&gt;, TheftOver_2018 &lt;int&gt;,
+## #   TheftOver_2019 &lt;int&gt;, TheftOver_AVG &lt;dbl&gt;, TheftOver_CHG &lt;dbl&gt;,
+## #   TheftOver_Rate_2019 &lt;dbl&gt;, Shape__Area &lt;dbl&gt;, Shape__Length &lt;dbl&gt;,
+## #   geometry &lt;POLYGON [°]&gt;
+
+#cleaning and creating graph
+compare_crime %&gt;%
+  select(Neighbourhood, Assault_Rate_2019 , AutoTheft_Rate_2019, BreakandEnter_Rate_2019, Homicide_Rate_2019, Robbery_Rate_2019, TheftOver_Rate_2019) %&gt;%
+  gather(Year, C, Assault_Rate_2019:TheftOver_Rate_2019) %&gt;%
+  ggplot(aes(y = C, x = Year, colour = Neighbourhood)) + 
+  geom_point() +
+  labs(y=&quot;Rate of Crime per 100,000 People&quot;, x = &quot;Type of Crime&quot;, title = &quot;Various Crime Rates per 100,000 People &quot;)</code></pre>
+<p><img src="/post/2015-07-23-r-rmarkdown_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+When we look at these two neighbourhoods, despite Agincourt North having a higher population (29,113) than Agincourt South-Malvert West (23,757), on all crimes except Robbery, Agincourt South has a higher average crime count. When looking at the data, we can see that A. South has a higher assault, auto theft, break and enter, and theft count for all 5 years. As for robbery, A. South only has a higher count in 2016 and 2017, causing the average count to be lower than A. North. Looking at the graph, we can see there is a rather big disparity between the crime rates for 2019 per 100,000 people for the two neighbourhoods. This is interesting because one would think there is a positive relationship between population size and crime, where the higher the population the more crime. The largest disparity between the two neighbourhoods is rate of assaults (246.3) whilst the smallest is homicide (0). There is a large difference despite the two neighbourhoods being right next to each other. This raises questions as to what factors may be causing this.
+One weaknesses in this dataset is that the population is based off of the 2016 Census, meaning there could have been a large change in population in the years after 2016 that may change the rate of crimes, or may give further insight to possible trends in data. For example, is the raising assault counts in A. North due to raise in population, or change in public policies? Another weakness is the possible lack of data due to people not reporting the crime. As this dataset represents the offical reported data and not taken from surveying people that live there, there can exist gaps of missing data. There exists numerous possibilities as to why there is such a large difference in crime counts between these two neighbourhoods, allowing for further discussion on how to decrease crime rate.</p>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references">
+<div id="ref-citeopendatatoronto">
+<p>Gelfand, Sharla. 2020. <em>Opendatatoronto: Access the City of Toronto Open Data Portal</em>. <a href="https://CRAN.R-project.org/package=opendatatoronto">https://CRAN.R-project.org/package=opendatatoronto</a>.</p>
+</div>
+<div id="ref-citetidyverse">
+<p>Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019. “Welcome to the tidyverse.” <em>Journal of Open Source Software</em> 4 (43): 1686. <a href="https://doi.org/10.21105/joss.01686">https://doi.org/10.21105/joss.01686</a>.</p>
+</div>
+<div id="ref-citedplyr">
+<p>Wickham, Hadley, Romain François, Lionel Henry, and Kirill Müller. 2020. <em>Dplyr: A Grammar of Data Manipulation</em>. <a href="https://CRAN.R-project.org/package=dplyr">https://CRAN.R-project.org/package=dplyr</a>.</p>
+</div>
+</div>
+</div>

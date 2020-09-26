@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>plot on Cecily Liu: STA304</title>
+    <link>/tags/plot/</link>
+    <description>Recent content in plot on Cecily Liu: STA304</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 25 Sep 2020 21:13:14 -0500</lastBuildDate><atom:link href="/tags/plot/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Toronto&#39;s Crime Rate by Neighbourhood</title>
+      <link>/2020/09/25/torontos-crime-rate-by-neighbourhood/</link>
+      <pubDate>Fri, 25 Sep 2020 21:13:14 -0500</pubDate>
+      
+      <guid>/2020/09/25/torontos-crime-rate-by-neighbourhood/</guid>
+      <description>AbstractCrime rate is an important measure when determining public polices about safety, or deciding between neighbourhoods you would want to raise your children. In this blogpost, we look at the “Neighbourhood Crime Rate” taken from Open Data Toronto, which shows the various crime counts of neighbourhoods in Toronto from 2014-2019. We can see that despite the smaller population, Agincourt South-Malvert West has a higher crime count in almost all types of crime measured compared to the neighbouring Agincourt North.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,61 @@
+---
+title: "Toronto's Crime Rate by Neighbourhood"
+author: "Cecily Liu"
+date: 2020-09-25T21:13:14-05:00
+bibliography: "reference.bib"
+categories: ["R"]
+tags: ["R Markdown", "plot", "regression"]
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE)
+#install.packages("opendatatoronto")
+library(opendatatoronto)
+library(dplyr)
+library(tidyverse)
+
+```
+# Abstract
+
+Crime rate is an important measure when determining public polices about safety, or deciding between neighbourhoods you would want to raise your children. In this blogpost, we look at the "Neighbourhood Crime Rate" taken from Open Data Toronto, which shows the various crime counts of neighbourhoods in Toronto from 2014-2019. We can see that despite the smaller population, Agincourt South-Malvert West has a higher crime count in almost all types of crime measured compared to the neighbouring Agincourt North. This may give insight on further research on factors that may cause crime. 
+
+# Introduction
+
+This dataset "Neighbourhood Crime Rate" taken from Open Data Toronto, depicts the crime count and population of the 140 neighbourhoods that make up Toronto. The crimes include assault, auto theft, break and enter, robbery, theft, and homicide that has happened in 2014-2019 for each neighbourhood. As well, it shows the averages for each crime count over the last 5 years, the percentage change of each crime, and the rate of each crime for 2019 per 100,000 people. The population included is taken from the 2016 Census and there are no missing data or n/a for any of the categories. 
+
+
+We use @citetidyverse, @citeopendatatoronto, @citedplyr, in the following blogpost.
+
+```{r}
+crime_rate_data <- list_package_resources("https://open.toronto.ca/dataset/neighbourhood-crime-rates/") %>%
+  get_resource()
+
+head(crime_rate_data)
+
+```
+
+
+# Graph
+
+```{r}
+compare_crime <- crime_rate_data %>%
+  filter(Neighbourhood %in% c("Agincourt North", "Agincourt South-Malvern West")) 
+
+#all observations for two chosen neighbourhoods
+compare_crime 
+
+#cleaning and creating graph
+compare_crime %>%
+  select(Neighbourhood, Assault_Rate_2019 , AutoTheft_Rate_2019, BreakandEnter_Rate_2019, Homicide_Rate_2019, Robbery_Rate_2019, TheftOver_Rate_2019) %>%
+  gather(Year, C, Assault_Rate_2019:TheftOver_Rate_2019) %>%
+  ggplot(aes(y = C, x = Year, colour = Neighbourhood)) + 
+  geom_point() +
+  labs(y="Rate of Crime per 100,000 People", x = "Type of Crime", title = "Various Crime Rates per 100,000 People ")
+
+```
+When we look at these two neighbourhoods, despite Agincourt North having a higher population (29,113) than Agincourt South-Malvert West (23,757), on all crimes except Robbery, Agincourt South has a higher average crime count. When looking at the data, we can see that A. South has a higher assault, auto theft, break and enter, and theft count for all 5 years. As for robbery, A. South only has a higher count in 2016 and 2017, causing the average count to be lower than A. North. Looking at the graph, we can see there is a rather big disparity between the crime rates for 2019 per 100,000 people for the two neighbourhoods. This is interesting because one would think there is a positive relationship between population size and crime, where the higher the population the more crime. The largest disparity between the two neighbourhoods is rate of assaults (246.3) whilst the smallest is homicide (0). There is a large difference despite the two neighbourhoods being right next to each other. This raises questions as to what factors may be causing this. 
+One weaknesses in this dataset is that the population is based off of the 2016 Census, meaning there could have been a large change in population in the years after 2016 that may change the rate of crimes, or may give further insight to possible trends in data. For example, is the raising assault counts in A. North due to raise in population, or change in public policies? Another weakness is the possible lack of data due to people not reporting the crime. As this dataset represents the offical reported data and not taken from surveying people that live there, there can exist gaps of missing data. There exists numerous possibilities as to why there is such a large difference in crime counts between these two neighbourhoods, allowing for further discussion on how to decrease crime rate. 
+
+
+# References
